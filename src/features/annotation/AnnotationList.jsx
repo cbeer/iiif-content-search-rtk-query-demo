@@ -1,11 +1,14 @@
-
-
+import { createSelector } from '@reduxjs/toolkit'
 import { useAppSelector } from '../../app/hooks'
 import { useIiifContentSearchQuery } from '../search/searchUtils'
 
+const selectSearches = createSelector(
+    state => state.search,
+    searches => Object.values(searches)
+)
+
 export const AnnotationList = () => {
-    const searchesSlice = useAppSelector(state => state.search)
-    const searches = Object.values(searchesSlice)
+    const searches = useAppSelector(selectSearches)
 
   return (
     <div>
