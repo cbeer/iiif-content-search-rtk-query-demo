@@ -29,8 +29,12 @@ export const SearchResults = ({ id }) => {
   const debouncedQuery = useDebounce(query, 300);
 
   // Using a query hook automatically fetches data and returns query values
-  const { search: { hits, annotations, numTotal }, isError, isLoading, isSuccess } =
+  const { search: { hits, annotations, numTotal }, isError, isLoading, isSuccess, fetchNextPage, hasNextPage } =
     useIiifContentSearchQuery({ endpoint, query: debouncedQuery })
+
+  const handleNextPage = async () => {
+    await fetchNextPage()
+  }
 
   return (
     <div>
@@ -47,6 +51,9 @@ export const SearchResults = ({ id }) => {
               <li key={index}>{item.before} <b>{item.match}</b> {item.after}</li>
             ))}
           </ul>
+          {hasNextPage && (
+            <button onClick={handleNextPage}>Load More</button>
+          )}
         </>
       )}
     </div>
