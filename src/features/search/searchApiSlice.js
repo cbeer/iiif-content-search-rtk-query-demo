@@ -1,6 +1,15 @@
 // Need to use the React-specific entry point to import `createApi`
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
+
+function getNextSearchPage(page) {
+  if (page['@context'] == "http://iiif.io/api/presentation/2/context.json") {
+    return page.next;
+  } else {
+    return page.next?.id;
+  }
+}
+
 // Define a service using a base URL and expected endpoints
 export const searchApiSlice = createApi({
   baseQuery: fetchBaseQuery(),
@@ -14,7 +23,7 @@ export const searchApiSlice = createApi({
     getIiifContentSearch: build.infiniteQuery({
       infiniteQueryOptions: {
         initialPageParam: undefined,
-        getNextPageParam: (lastPage, allPages) => lastPage?.next?.id
+        getNextPageParam: (lastPage, allPages) => getNextSearchPage(lastPage)
       },
       query: ({queryArg, pageParam}) => {
         if (pageParam) {
