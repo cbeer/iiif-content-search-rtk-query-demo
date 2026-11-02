@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
-import { createSelector } from '@reduxjs/toolkit'
-import { useGetIiifContentSearchQuery } from "./searchApiSlice"
+import { useAppSelector, useAppDispatch } from '../../app/hooks'
+import { addOrUpdateSearch } from "./searchSlice"
+import { useIiifContentSearchQuery, useIiifContentSearchEndpoint } from './searchUtils'
+
 
 export function useDebounce(value, delay = 300) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -19,41 +21,20 @@ export function useDebounce(value, delay = 300) {
   return debouncedValue;
 }
 
-const selectSearchObject = createSelector(
-  (result) => result.data,
-  (data) => ({
-    annotations: data?.annotations ?? [],
-    hits: data?.hits ?? [],
-    numTotal: data?.hits?.length ?? 0
-  })
-)
+export const SearchResults = ({ id }) => {
+  const dispatch = useAppDispatch();
+  const query = useAppSelector(state => (state.search[id] ?? {}).query ?? "");
 
-function enhanceIiifContentSearchQueryResults(result) {
-    return {
-        ...result,
-        search: selectSearchObject(result),
-    }
-}
-
-function useIiifContentSearchQuery({ endpoint, query }, options) {
-  return useGetIiifContentSearchQuery({ endpoint, query }, { skip: query?.length === 0, selectFromResult: enhanceIiifContentSearchQueryResults, ...options })
-}
-
-function useIiifContentSearchEndpoint() {
-    return "https://contentsearch.stanford.edu/fg165hz3589/search";
-}
-
-export const SearchResults = () => {
-  const [query, setQuery] = useState("nsf")
   const endpoint = useIiifContentSearchEndpoint();
   const debouncedQuery = useDebounce(query, 300);
+
   // Using a query hook automatically fetches data and returns query values
   const { search: { hits, annotations, numTotal }, isError, isLoading, isSuccess } =
     useIiifContentSearchQuery({ endpoint, query: debouncedQuery })
 
   return (
     <div>
-      <input type="text" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)} />
+      <input type="text" placeholder="Search..." value={query} onChange={e => dispatch(addOrUpdateSearch({ id: id, endpoint: endpoint, query: e.target.value }))} />
 
       <div>Search Results Component</div>
       {isLoading && <div>Loading...</div>}
