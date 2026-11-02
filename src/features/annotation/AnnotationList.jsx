@@ -4,7 +4,8 @@ import { useAppSelector } from '../../app/hooks'
 import { useIiifContentSearchQuery } from '../search/searchUtils'
 
 export const AnnotationList = () => {
-    const searches = useAppSelector(state => Object.values(state.search))
+    const searchesSlice = useAppSelector(state => state.search)
+    const searches = Object.values(searchesSlice)
 
   return (
     <div>
